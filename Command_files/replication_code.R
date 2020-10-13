@@ -543,6 +543,7 @@ model2.cut4 <- summary(model2)$coefficients[15, 1] %>%
 model2.cut4.se <- summary(model2)$coefficients[15, 2] %>% 
   as.numeric %>% round(., 3)
 lr2 <- round(model2.null$deviance - model2$deviance, 3)
+
 stargazer(model1, model2, 
           title = "Ordered Logistic Regressions: Attitudes toward North Korea after the Panmunjom Declaration",
           label = "tab1",
@@ -696,7 +697,7 @@ pr.table <- bind_rows(pr.table40 <-
                        include_na = F)
   )
 
-pr.table %>% dplyr::filter(generation %in% c("40s", "50s")) %>%
+pr.table %>% #dplyr::filter(generation %in% c("40s", "50s")) %>%
   ggplot(aes(x = leadership, y = Mean,
              color = generation, 
              fill = generation)) + 
@@ -809,7 +810,7 @@ model6.cut3 <- summary(model6)$coefficients[20, 1] %>%
   as.numeric %>% round(., 3)
 model6.cut3.se <- summary(model6)$coefficients[20, 2] %>% 
   as.numeric %>% round(., 3)
-
+stargazer(model3, model4, model5, model6, type = "text")
 stargazer(model3, model4, model5, model6,
           title = "Ordered Logistic Regressions: Attitudes toward North Korea after the Panmunjom Declaration",
           label = "tab2",

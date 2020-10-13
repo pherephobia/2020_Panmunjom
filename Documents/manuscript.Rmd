@@ -193,7 +193,9 @@ It is difficult to assert that a political event is critical. We can only ex-pos
 library(ggplot2)
 library(ezpickr)
 library(tidyverse)
-gdp <- pick("../5. DATA/gdpgr2.CSV")
+load("../Analysis_data/replication.RData")
+
+
 grid_gdp <- gdp %>% tidyr::gather(variable, value, -Quarters) %>%
   mutate(
     variable = case_when(
@@ -224,7 +226,6 @@ In 2017, North Korea continued the military provocation with a political slogan 
 
 ```{r fig2, fig.width=3, fig.height=3, fig.align='center',  cache=TRUE, message = F, echo=F, fig.cap="\\label{fig2} Approval of President Jae-In Moon (June 2017-June 2018"}
 
-approval <- pick("../5. DATA/survey2.CSV")
 average <- approval %>% summarize()
 p_approval <- approval %>% drop_na() %>% mutate(
   media = case_when(
@@ -290,9 +291,7 @@ It should be noted that this is not panel data that surveys the same respondents
 The dependent variables of interest are the attitudes toward North Korea, and unification. We use two questions to classify the attitude toward North Korea—North Korean leadership, or North Korea in general. We expect attitudes toward North Korea to be differentiated into North Korean leadership and North Korea as a general state. First, we look at the question about North Korean leadership: "What do you think of Jong-Un Kim’s North Korean regime and its ruling leadership group?" The responses on North Korean leadership were given on a five-points scale, with 1 meaning "very dissatisfied" to 5, meaning "very satisfied." Also, we asked the question, "What do you think about North Korea?" to measure general attitudes toward North Korea. The responses are also measured on a five-point scale from 1, "I think North Korea is a hostile entity," to 5, "I think South Korea should support North Korea." 
 
 ```{r fig3, fig.width=3, fig.height=5.5, fig.align='center', fig.pos="ht", cache=TRUE, message = F, echo=F, fig.cap="\\label{fig3} The Distribution of Attitudes toward North Korea: Leadership, and General State"}
-df <- pick("../5. DATA/X2018_rec.dta")
-plot1 <- df %>% dplyr::select(ID, Q1, Q2) %>% mutate(
-  Q1 = 6 - Q1,
+subset <- subset %>% mutate(
   Q1 = case_when(
     Q1==1 ~ "Very Dissatisfied",
     Q1==2 ~ "Dissatisfied",
@@ -303,7 +302,6 @@ plot1 <- df %>% dplyr::select(ID, Q1, Q2) %>% mutate(
   ) %>% parse_factor(., levels = c("Very Dissatisfied", "Dissatisfied", 
                                    "Neutral", "Satisfied", "Very Satisfied"), 
                      include_na = F, ordered = T),
-  Q2 = 6 - Q2,
   Q2 = case_when(
     Q2==1 ~ "Hostile",
     Q2==2 ~ "Vigilant",
@@ -316,7 +314,8 @@ plot1 <- df %>% dplyr::select(ID, Q1, Q2) %>% mutate(
                      include_na = F, ordered = T)
 )
 
-p1 <- plot1 %>% 
+
+p1 <- subset %>% 
   ggplot(aes(x = Q1, fill = Q1)) + 
   geom_bar(aes(y = (..count..)/sum(..count..)),
            position=position_dodge(), show.legend = F) + 
@@ -337,7 +336,7 @@ p1 <- plot1 %>%
         axis.title.y = element_text(size = 7.5),
         axis.text.y = element_text(size = 6),
         legend.title = element_blank())
-p2 <- plot1 %>% 
+p2 <- subset %>% 
   ggplot(aes(x = Q2, fill = Q2)) + 
   geom_bar(aes(y = (..count..)/sum(..count..)),
            position=position_dodge(), show.legend = F) + 
@@ -373,66 +372,67 @@ When we looked at the distribution of attitudes toward North Korea after the Pan
 
 
 ```{r fig4, fig.width=3, fig.height=2.5, fig.align='center',  cache=TRUE, message = F, echo=F, fig.cap="\\label{fig4} The Distribution of Attitudes toward Unification"}
-plot2 <- df %>% dplyr::select(ID, Q3, Q4, Q6, Q9) %>% 
+subset <- subset %>% 
   mutate(
-    Q4 = 5 - Q4,
-    Q4 = case_when(
-      Q4==1 ~ "Not\npreferred",
-      Q4==2 ~ "Status quo",
-      Q4==3 ~ "Preferred\nwithout\nBurdens",
-      Q4==4 ~ "Preferred",
-    T ~ NA_character_
-  ) %>% parse_factor(., levels = c("Not\npreferred","Status quo",
-                                   "Preferred\nwithout\nBurdens", "Preferred"), 
-                     include_na = F, ordered = T),
-  Q4_label = case_when(
-    Q4=="Not\npreferred" ~ "Not\npreferred\n(n = 89)",
-    Q4=="Status quo" ~ "Status quo\n(n = 252)",
-    Q4=="preferred\nwithout\nBurdens" ~ "preferred without\nBurdens\n(n = 455)",
-    Q4=="preferred" ~ "preferred\n(n = 204)",
-    T ~ NA_character_
-  ) %>% parse_factor(., levels = c("Not\npreferred\n(n = 89)",
-                                   "Status quo\n(n = 252)",
-                                   "preferred without\nBurdens\n(n = 455)",
-                                   "preferred\n(n = 204)"), 
-                     include_na = F, ordered = T),
-  Q3 = case_when(
-    Q3==1 ~ "Never\nInterested",
-    Q3==2 ~ "Not\nInterested",
-    Q3==3 ~ "Interested",
-    Q3==4 ~ "Very\nInterested",
-    T ~ NA_character_
-  ) %>% parse_factor(., levels = c("Never\nInterested", "Not\nInterested", 
-                                   "Interested","Very\nInterested"), 
-                     include_na = F, ordered = T),
-  Q9 = case_when(
-    Q9==5 ~ "Never",
-    Q9==1 ~ "Less\nthan\n1%",
-    Q9==2 ~ "Less\nthan\n1~5%",
-    Q9==3 ~ "Less\nthan\n5~10%",
-    Q9==4 ~ "More\nthan\n10%",
-    T ~ NA_character_) %>% 
-    parse_factor(., levels = c("Never", "Less\nthan\n1%", "Less\nthan\n1~5%",
-                               "Less\nthan\n5~10%", "More\nthan\n10%"), 
-                 include_na = F, ordered = T),
-  Q6 = case_when(
-    Q6==1 ~ "Social\nDisorder",
-    Q6==2 ~ "Immigrants from\nthe North",
-    Q6==3 ~ "The Burden of\nUnification Costs",
-    Q6==4 ~ "Political/Economic\nDisorder",
-    Q6==5 ~ "Confusion of\nInternational Relations"
-  ) %>% parse_factor(., levels = c("Social\nDisorder","Immigrants from\nthe North",
-                                   "The Burden of\nUnification Costs",
-                                   "Political/Economic\nDisorder",
-                                   "Confusion of\nInternational Relations"))
+    Q4_re = 5 - as.numeric(Q4),
+    Q4_re = case_when(
+      Q4_re==1 ~ "Not\npreferred",
+      Q4_re==2 ~ "Status quo",
+      Q4_re==3 ~ "Preferred\nwithout\nBurdens",
+      Q4_re==4 ~ "Preferred",
+      T ~ NA_character_
+    ) %>% parse_factor(., levels = c("Not\npreferred","Status quo",
+                                     "Preferred\nwithout\nBurdens", "Preferred"), 
+                       include_na = F, ordered = T),
+    Q4_label = case_when(
+      Q4_re=="Not\npreferred" ~ "Not\npreferred\n(n = 89)",
+      Q4_re=="Status quo" ~ "Status quo\n(n = 252)",
+      Q4_re=="preferred\nwithout\nBurdens" ~ "preferred without\nBurdens\n(n = 455)",
+      Q4_re=="preferred" ~ "preferred\n(n = 204)",
+      T ~ NA_character_
+    ) %>% parse_factor(., levels = c("Not\npreferred\n(n = 89)",
+                                     "Status quo\n(n = 252)",
+                                     "preferred without\nBurdens\n(n = 455)",
+                                     "preferred\n(n = 204)"), 
+                       include_na = F, ordered = T),
+    Q3 = case_when(
+      Q3==1 ~ "Never\nInterested",
+      Q3==2 ~ "Not\nInterested",
+      Q3==3 ~ "Interested",
+      Q3==4 ~ "Very\nInterested",
+      T ~ NA_character_
+    ) %>% parse_factor(., levels = c("Never\nInterested", "Not\nInterested", 
+                                     "Interested","Very\nInterested"), 
+                       include_na = F, ordered = T),
+    Q9 = case_when(
+      Q9==5 ~ "Never",
+      Q9==1 ~ "Less\nthan\n1%",
+      Q9==2 ~ "Less\nthan\n1~5%",
+      Q9==3 ~ "Less\nthan\n5~10%",
+      Q9==4 ~ "More\nthan\n10%",
+      T ~ NA_character_) %>% 
+      parse_factor(., levels = c("Never", "Less\nthan\n1%", "Less\nthan\n1~5%",
+                                 "Less\nthan\n5~10%", "More\nthan\n10%"), 
+                   include_na = F, ordered = T),
+    Q6_fa = case_when(
+      Q6==1 ~ "Social\nDisorder",
+      Q6==2 ~ "Immigrants from\nthe North",
+      Q6==3 ~ "The Burden of\nUnification Costs",
+      Q6==4 ~ "Political/Economic\nDisorder",
+      Q6==5 ~ "Confusion of\nInternational Relations"
+    ) %>% parse_factor(., levels = c("Social\nDisorder","Immigrants from\nthe North",
+                                     "The Burden of\nUnification Costs",
+                                     "Political/Economic\nDisorder",
+                                     "Confusion of\nInternational Relations"))
   )
 
-plot2 %>% ggplot(aes(x = Q4,
-                           y = prop.table(stat(count)),
-                           fill = Q4,
-                           label = scales::percent(prop.table(stat(count))))) + 
+
+subset %>% ggplot(aes(x = Q4_re,
+                     y = prop.table(stat(count)),
+                     fill = Q4_re,
+                     label = scales::percent(prop.table(stat(count))))) + 
   geom_bar(aes(y = (..count..)/sum(..count..)), show.legend = F) +
-#  facet_wrap(~ Q4_label, ncol = 2) +
+  #  facet_wrap(~ Q4_label, ncol = 2) +
   geom_text(stat = 'count',
             position = position_dodge(.1),
             vjust = 0.5, size = 2)+
@@ -447,6 +447,9 @@ plot2 %>% ggplot(aes(x = Q4,
         axis.title.y = element_text(size = 7.5),
         axis.text.y = element_text(size = 6),
         legend.title = element_blank())
+
+
+
 ```
 
 Figure \ref{fig4} shows the distribution of respondents about the attitudes toward unification. We asked, “What do you think about unification?” Responses were measured on a four-point scale. The most frequent response is the opinion that respondents prefer unification if it creates no burdens (45.5%). Only 8.9% of respondents say that they do not prefer unification. A quarter of the respondents answer that they prefer the status quo (25.2%), and only 20.4% say they prefer unification unconditionally.
@@ -455,10 +458,11 @@ On the one hand, Figure \ref{fig4} implies that it is necessary to examine in de
 
 ```{r fig5, fig.width=3, fig.height=2.5, fig.align='center',  cache=TRUE, message = F, echo=F, fig.cap="\\label{fig5} Most Worrying about the Unification Process"}
 
-plot2 %>% ggplot(aes(x = Q6,
-                   y = prop.table(stat(count)),
-                   fill = Q6,
-                   label = scales::percent(prop.table(stat(count))))) + 
+## Figure 5
+subset %>% ggplot(aes(x = Q6_fa,
+                     y = prop.table(stat(count)),
+                     fill = Q6_fa,
+                     label = scales::percent(prop.table(stat(count))))) + 
   geom_bar(aes(y = (..count..)/sum(..count..)), show.legend = F) +
   geom_text(stat = 'count',
             position = position_dodge(.1),
@@ -481,8 +485,7 @@ plot2 %>% ggplot(aes(x = Q6,
 Figure \ref{fig6} shows the distribution of respondents who answered that the cost of unification is their biggest concern, and how much of their annual income might be paid in taxes to cover the cost. About 28% of those who said that unification costs are the most significant concern would refuse to personally subsidize unification costs (28.24%). Figure 6 also reveals that although respondents recognize that the most crucial factor in unification is the cost, they are less likely to pay for the costs by themselves. It can be said to show a change in the perception of pragmatic rationality of unification mentioned by previous studies [@ChoHan2014]. 
 
 ```{r fig6, fig.width=3, fig.height=2.5, fig.align='center',  cache=TRUE, message = F, echo=F, fig.cap="\\label{fig6} Preferred Tax Level for Unification Costs Whose Biggest Concern is Unification Burden"}
-
-plot2 %>% dplyr::filter(Q6 == "The Burden of\nUnification Costs") %>% 
+subset %>% dplyr::filter(Q6_fa == "The Burden of\nUnification Costs") %>% 
   ggplot(aes(x = Q9,
              y = prop.table(stat(count)),
              fill = Q9,
@@ -496,7 +499,7 @@ plot2 %>% dplyr::filter(Q6 == "The Burden of\nUnification Costs") %>%
   labs(subtitle = "Preferred tax level to cover unification costs
   when respondents think the burden of 
   unification costs are the biggest concern",
-    y = "Percent (%)", x = "") + 
+       y = "Percent (%)", x = "") + 
   theme_bw() +
   theme(plot.subtitle = element_text(size = 7.5),
         axis.text.x = element_text(hjust = 0.5, size = 5),
@@ -504,6 +507,7 @@ plot2 %>% dplyr::filter(Q6 == "The Burden of\nUnification Costs") %>%
         axis.title.y = element_text(size = 7.5),
         axis.text.y = element_text(size = 6),
         legend.title = element_blank())
+
 ```
 
 
@@ -523,102 +527,7 @@ Finally, we control for other variables that can potentially affect the attitude
 Evaluations toward North Korea’s policies under the Jae-In Moon administration is a proxy variable of political ideology or party identification, considered in previous studies. Political ideology mostly measures the spectrum of liberal or conservative, and party identification measures a respondent’s attachment to a particular party as a primary political variable. The political ideology or party identification in current studies is used to explore the determinants of attitudes toward North Korea and unification. However, the KBS survey data used in this study do not include questions that directly measure the political ideology or party identification of respondents. We expect that the evaluations will show the ideological tendency because voters in South Korea have shown significant differences in policy issues in terms of North Korea support and the ROK-US alliance [@Parketal2012]. Socio-demographic variables, such as gender, education level, and income level, are also included.
 
 ```{r fig7, fig.width=3, fig.height=3, fig.align='center',  cache=TRUE, message = F, echo=F, fig.cap="\\label{fig7} Bivariate Relationship between Attitudes toward North Korea and Different Generations"}
-
-subset <- df %>% 
-  dplyr::select(ID, Q1, Q2, Q4, Q3, Q5, Q19, Q20, Honam, PK, TK, 
-                gender, edu, income, age ) %>% 
-  mutate(
-    Q1 = 6 - Q1,
-    Q1_fa = case_when(
-      Q1==1 ~ "Very Dissatisfied",
-      Q1==2 ~ "Dissatisfied",
-      Q1==3 ~ "Neutral",
-      Q1==4 ~ "Satisfied",
-      Q1==5 ~ "Very Satisfied",
-      T ~ NA_character_
-    ) %>% parse_factor(., levels = c("Very Dissatisfied", "Dissatisfied", 
-                                     "Neutral", "Satisfied", "Very Satisfied"), 
-                       include_na = F, ordered = T),
-    Q2 = 6 - Q2,
-    Q2_fa = case_when(
-      Q2==1 ~ "Hostile",
-      Q2==2 ~ "Vigilant",
-      Q2==3 ~ "Competitive",
-      Q2==4 ~ "Cooperative",
-      Q2==5 ~ "Supportive",
-      T ~ NA_character_
-    ) %>% parse_factor(., levels = c("Hostile", "Vigilant", "Competitive", 
-                                     "Cooperative", "Supportive"), 
-                       include_na = F, ordered = T),
-    Q4_fa = 5 - Q4,
-    Q4 = case_when(
-      Q4==1 ~ "Not\npreferred",
-      Q4==2 ~ "status quo",
-      Q4==3 ~ "preferred\nwithout\nBurdens",
-      Q4==4 ~ "preferred",
-      T ~ NA_character_
-    ) %>% parse_factor(., levels = c("Not\npreferred","status quo",
-                                     "preferred\nwithout\nBurdens", "preferred"), 
-                       include_na = F, ordered = T),
-    Q4_label = case_when(
-      Q4_fa=="Not\npreferred" ~ "Not\npreferred\n(n = 89)",
-      Q4_fa=="status quo" ~ "status quo\n(n = 252)",
-      Q4_fa=="preferred\nwithout\nBurdens" ~ "preferred without\nBurdens\n(n = 455)",
-      Q4_fa=="preferred" ~ "preferred\n(n = 204)",
-      T ~ NA_character_
-    ) %>% parse_factor(., levels = c("Not\npreferred\n(n = 89)",
-                                     "status quo\n(n = 252)",
-                                     "preferred without\nBurdens\n(n = 455)",
-                                     "preferred\n(n = 204)"), 
-                       include_na = F, ordered = T),
-    Q3 = 5 - Q3,
-    Q3_fa = case_when(
-      Q3==1 ~ "Never\nInterested",
-      Q3==2 ~ "Not\nInterested",
-      Q3==3 ~ "Interested",
-      Q3==4 ~ "Very\nInterested",
-      T ~ NA_character_
-    ) %>% parse_factor(., levels = c("Never\nInterested", "Not\nInterested", 
-                                     "Interested","Very\nInterested"), 
-                       include_na = F, ordered = T),
-    Q5_re = 7 - Q5,
-    Q5_fa = case_when(
-      Q5 == 1 ~ "less\nthan\n5 years",
-      Q5 == 2 ~ "6-10\nyears",
-      Q5 == 3 ~ "11-20\nyears",
-      Q5 == 4 ~ "21-30\nyears",
-      Q5 == 5 ~ "more\nthan\n30 years",
-      Q5 == 6 ~ "Never") %>% 
-      parse_factor(., levels = c("less\nthan\n5 years", "6-10\nyears", 
-                                 "11-20\nyears", "21-30\nyears", 
-                                 "more\nthan\n30 years", "Never"),
-                   include_na = F, ordered = T),
-    Q19 = 5 - Q19,
-    Q19_fa = case_when(
-      Q19 == 4 ~ "Strongly\ndisagree",
-      Q19 == 3 ~ "Disagree",
-      Q19 == 2 ~ "Agree",
-      Q19 == 1 ~ "Strongly\nagree"
-    ) %>% parse_factor(., levels = c("Strongly\ndisagree", "Disagree", 
-                                     "Agree", "Strongly\nagree"),
-                       include_na = F, ordered = T),
-    Q20_fa = case_when(
-      Q20 == 1 ~ "Very\nUnsecured",
-      Q20 == 2 ~ "Unsecured",
-      Q20 == 3 ~ "Secured",
-      Q20 == 4 ~ "Very\nsecured"
-    ) %>% parse_factor(., levels = c("Very\nUnsecured", "Unsecured", 
-                                     "Secured", "Very\nsecured"),
-                       include_na = F, ordered = T),
-    age_re = case_when(
-      age == 5L ~ 0L,
-      age == 1L ~ 1L,
-      age == 2L ~ 2L,
-      age == 3L ~ 3L,
-      age == 4L ~ 4L)
-    )
-
-Bivariate <- subset %>% dplyr::select(Q1, Q2, Q4, Q5, age) %>%
+Bivariate <- subset %>% dplyr::select(Q1, Q2, Q4_re, Q5, age) %>%
   mutate(
     age = case_when(
       age == 1L ~ "20s",
@@ -644,13 +553,13 @@ Bivariate <- subset %>% dplyr::select(Q1, Q2, Q4, Q5, age) %>%
 
 Bivariate_sum <- Bivariate %>% group_by(age) %>% 
   summarise(
-    Q1.sum = mean(Q1, na.rm = T),
-    Q1.sd = sd(Q1, na.rm = T),
-    Q2.sum = mean(Q2, na.rm = T),
-    Q2.sd = sd(Q2, na.rm = T),
-    Q4.sum = mean(as.numeric(Q4), na.rm = T),
-    Q4.sd = sd(as.numeric(Q4), na.rm = T)
-)
+    Q1.sum = mean(as.numeric(Q1), na.rm = T),
+    Q1.sd = sd(as.numeric(Q1), na.rm = T),
+    Q2.sum = mean(as.numeric(Q2), na.rm = T),
+    Q2.sd = sd(as.numeric(Q2), na.rm = T),
+    Q4.sum = mean(as.numeric(Q4_re), na.rm = T),
+    Q4.sd = sd(as.numeric(Q4_re), na.rm = T)
+  )
 
 plot5a <- Bivariate_sum %>% 
   ggplot(aes(x = age, y = Q1.sum)) + 
@@ -677,7 +586,7 @@ plot5b <- Bivariate_sum %>%
   geom_hline(yintercept = 3.03, color = "red", linetype = 2) + 
   scale_fill_grey(start = 0.8, end = 0.4) +
   labs(subtitle = "NK general",
-    y = "Mean value", x = "Generations") + 
+       y = "Mean value", x = "Generations") + 
   theme_bw() + 
   theme(plot.subtitle = element_text(size = 7.5),
         axis.text.x = element_text(hjust = 0.5, size = 5),
@@ -686,6 +595,7 @@ plot5b <- Bivariate_sum %>%
         axis.text.y = element_text(size = 6),
         legend.title = element_blank())
 plot5a + plot5b + patchwork::plot_layout(ncol = 1)
+
 ```
 
 
@@ -702,14 +612,17 @@ plot5a + plot5b + patchwork::plot_layout(ncol = 1)
 Figure \ref{fig7} and Figure \ref{fig8} show preliminary bivariate analyses. Figure \ref{fig7} is a bar plot where the x-axis represents discrete generations, while the y-axis represents the mean value of the attitudes toward North Korea. The red dashed line is the mean value of the attitudes toward North Korean leadership and North Korea in general. On average, Figure \ref{fig7} implies that respondents are more likely to show a negative attitude toward North Korean leadership than North Korea in general. In terms of the attitude toward North Korean leadership, the youngest generation, in their 20s, show the lowest mean value, which means that South Koreans in their 20s are more likely to consider North Korean leadership negatively. Otherwise, people in their 40s have the highest mean value, which indicates that people in their 50s are more likely to feel familiar with North Korean leadership than other generations. Figure 8 is about the attitude toward North Korea in general. As expected, the generation of people 60 and over are more likely to answer that they consider North Korea to be a hostile and vigilant counterpart. Other generations show a positive attitude toward North Korea in general compared to people 60 and over. In particular, people in their 40s have the most positive attitude toward North Korea in general across the generation groups. Thus, in terms of the perceptions about leadership and North Korea in general, people in their 40s are the most generous group.
 
 ```{r fig8, fig.width=3.5, fig.height=6.5, fig.align='center', fig.pos = "ht", cache=TRUE, message = F, echo=F, fig.cap="\\label{fig8} Bivariate Relationship between Prospect of Attitudes toward Unification and Different Generations"}
-Bivaraiate_sum2a <- as.data.frame(table(Bivariate$Q4, Bivariate$age))
+
+## Figure 8
+Bivaraiate_sum2a <- as.data.frame(table(Bivariate$Q4_re, Bivariate$age))
 Bivaraiate_sum2b <- as.data.frame(table(Bivariate$Q5, Bivariate$age))
 
 Bivaraiate_sum2a <- Bivaraiate_sum2a %>% rename(
-  Q4 = Var1,
+  Q4_re = Var1,
   Generation = Var2,
   Q4.freq = Freq
 )
+
 Bivaraiate_sum2b <- Bivaraiate_sum2b %>% rename(
   Q5 = Var1,
   Generation = Var2,
@@ -719,33 +632,33 @@ Bivaraiate_sum2b <- Bivaraiate_sum2b %>% rename(
 
 Bivaraiate_sum2a <- Bivaraiate_sum2a %>% mutate(
   Q4.Prop = case_when(
-    Q4 == "Not\npreferred"              & Generation == "20s" ~ 26/162,
-    Q4 == "status quo"                 & Generation == "20s" ~ 71/162,
-    Q4 == "preferred\nwithout\nBurdens" & Generation == "20s" ~ 45/162,
-    Q4 == "preferred"                   & Generation == "20s" ~ 20/162,
-    Q4 == "Not\npreferred"              & Generation == "30s" ~ 25/181,
-    Q4 == "status quo"                 & Generation == "30s" ~ 97/181,
-    Q4 == "preferred\nwithout\nBurdens" & Generation == "30s" ~ 42/181,
-    Q4 == "preferred"                   & Generation == "30s" ~ 17/181,
-    Q4 == "Not\npreferred"              & Generation == "40s" ~ 48/208,
-    Q4 == "status quo"                 & Generation == "40s" ~ 83/208,
-    Q4 == "preferred\nwithout\nBurdens" & Generation == "40s" ~ 63/208,
-    Q4 == "preferred"                   & Generation == "40s" ~ 14/208,
-    Q4 == "Not\npreferred"              & Generation == "50s" ~ 52/202,
-    Q4 == "status quo"                 & Generation == "50s" ~ 92/202,
-    Q4 == "preferred\nwithout\nBurdens" & Generation == "50s" ~ 42/202,
-    Q4 == "preferred"                   & Generation == "50s" ~ 16/202,
-    Q4 == "Not\npreferred"              & Generation == "over 60s" ~ 53/247,
-    Q4 == "status quo"                 & Generation == "over 60s" ~ 112/247,
-    Q4 == "preferred\nwithout\nBurdens" & Generation == "over 60s" ~ 60/247,
-    Q4 == "preferred"                   & Generation == "over 60s" ~ 22/247
+    Q4_re == "Not\npreferred"              & Generation == "20s" ~ 26/162,
+    Q4_re == "Status quo"                 & Generation == "20s" ~ 71/162,
+    Q4_re == "Preferred\nwithout\nBurdens" & Generation == "20s" ~ 45/162,
+    Q4_re == "Preferred"                   & Generation == "20s" ~ 20/162,
+    Q4_re == "Not\npreferred"              & Generation == "30s" ~ 25/181,
+    Q4_re == "Status quo"                 & Generation == "30s" ~ 97/181,
+    Q4_re == "Preferred\nwithout\nBurdens" & Generation == "30s" ~ 42/181,
+    Q4_re == "Preferred"                   & Generation == "30s" ~ 17/181,
+    Q4_re == "Not\npreferred"              & Generation == "40s" ~ 48/208,
+    Q4_re == "Status quo"                 & Generation == "40s" ~ 83/208,
+    Q4_re == "Preferred\nwithout\nBurdens" & Generation == "40s" ~ 63/208,
+    Q4_re == "Preferred"                   & Generation == "40s" ~ 14/208,
+    Q4_re == "Not\npreferred"              & Generation == "50s" ~ 52/202,
+    Q4_re == "Status quo"                 & Generation == "50s" ~ 92/202,
+    Q4_re == "Preferred\nwithout\nBurdens" & Generation == "50s" ~ 42/202,
+    Q4_re == "Preferred"                   & Generation == "50s" ~ 16/202,
+    Q4_re == "Not\npreferred"              & Generation == "over 60s" ~ 53/247,
+    Q4_re == "Status quo"                 & Generation == "over 60s" ~ 112/247,
+    Q4_re == "Preferred\nwithout\nBurdens" & Generation == "over 60s" ~ 60/247,
+    Q4_re == "Preferred"                   & Generation == "over 60s" ~ 22/247
   ),
   Q4.Prop.round = round(Q4.Prop, 2),
   `Attitudes toward unification` = case_when(
-    Q4 == "Not\npreferred"  ~ "Not preferred",
-    Q4 == "status quo"     ~ "status quo",
-    Q4 == "preferred\nwithout\nBurdens" ~ "preferred without\nBurdens",
-    Q4 == "preferred" ~ "preferred"
+    Q4_re == "Not\npreferred"  ~ "Not preferred",
+    Q4_re == "Status quo"     ~ "Status quo",
+    Q4_re == "Preferred\nwithout\nBurdens" ~ "Preferred without\nBurdens",
+    Q4_re == "Preferred" ~ "Preferred"
   )
 )
 
@@ -794,8 +707,8 @@ plot6a <- Bivaraiate_sum2a %>%
             position=position_fill(vjust=0.5), colour="black", size = 3) + 
   scale_y_continuous(labels = scales::percent_format()) +
   labs(subtitle = "Attitude toward unification",
-    fill = "Attitude toward\nunification",
-    x = "Generations", y = "") + 
+       fill = "Attitude toward\nunification",
+       x = "Generations", y = "") + 
   scale_fill_manual(values = futurevisions::futurevisions("cancri")) + 
   theme_bw() + theme(
     legend.title = element_text(size = 7),
@@ -818,7 +731,7 @@ plot6b <- Bivaraiate_sum2b %>% group_by(Q5,Generation) %>%
             position=position_fill(vjust=0.5), colour="black", size = 3) + 
   scale_y_continuous(labels = scales::percent_format()) +
   labs(subtitle = "Prospect of unification",
-    fill = "Prospect of\nunification",
+       fill = "Prospect of\nunification",
        x = "Generations", y = "Percent (%)") + 
   scale_fill_manual(values = futurevisions::futurevisions("cancri")) + 
   theme_bw() + theme(
@@ -1100,34 +1013,35 @@ Model 3 is a basic model composed of variables that can influence attitudes towa
 Model 4 shows the influence of generations on attitudes toward unification. Since the reference group is people in their 20s, we can interpret the results as effects of generations in comparison with those in their 20s on attitudes toward unification after the Panmunjom Declaration. Unlike previous studies, all generations did not show statistically significant differences from people in their 20s. Previous studies point out that the younger generations, such as those in their 20s and 30s, tend to prefer unification less, since the generations are more likely to approach unification issues with a view to utility maximization rather than historical nationalism, and will feel that unification is not practical [@ChoHan2014]. However, after the Panmunjom Declaration, the generations do not show statistical differences between each other, which are contrary to previous studies. 
 
 ```{r table2, echo = F, eval = T, message=F, warning=F, results = 'asis'}
-model3 <- polr(as.ordered(Q4) ~ Q3 + Q19 + Honam + PK + 
+
+model3 <- polr(as.ordered(Q4_re) ~ as.numeric(Q3) + Q19 + Honam + PK + 
                  TK + gender + edu + income, data = subset,
                method = "logistic", Hess = TRUE)
-model3.null <- polr(as.ordered(Q4) ~ 1, data = subset,
-               method = "logistic", Hess = TRUE)
+model3.null <- polr(as.ordered(Q4_re) ~ 1, data = subset,
+                    method = "logistic", Hess = TRUE)
 lr3 <- round(model3.null$deviance - model3$deviance, 3)
 
-model4 <- polr(as.ordered(Q4) ~ I(as.factor(age)) + Q3 + Q19 + Honam + PK + 
+model4 <- polr(as.ordered(Q4_re) ~ I(as.factor(age)) + as.numeric(Q3) + Q19 + Honam + PK + 
                  TK + gender + edu + income, data = subset,
                method = "logistic", Hess = TRUE)
-model4.null <- polr(as.ordered(Q4) ~ 1, data = subset,
-               method = "logistic", Hess = TRUE)
+model4.null <- polr(as.ordered(Q4_re) ~ 1, data = subset,
+                    method = "logistic", Hess = TRUE)
 lr4 <- round(model4.null$deviance - model4$deviance, 3)
 
-model5 <- polr(as.ordered(Q4) ~ I(Q5_re) + Q3 + Q19 + Honam + PK + 
+model5 <- polr(as.ordered(Q4_re) ~ I(Q5_re) + as.numeric(Q3) + Q19 + Honam + PK + 
                  TK + gender + edu + income, data = subset,
                method = "logistic", Hess = TRUE)
-model5.null <- polr(as.ordered(Q4) ~ 1, data = subset,
-               method = "logistic", Hess = TRUE)
+model5.null <- polr(as.ordered(Q4_re) ~ 1, data = subset,
+                    method = "logistic", Hess = TRUE)
 lr5 <- round(model5.null$deviance - model5$deviance, 3)
 
-model6 <- polr(as.ordered(Q4) ~ I(as.factor(age)) + I(Q5_re) + 
+model6 <- polr(as.ordered(Q4_re) ~ I(as.factor(age)) + I(Q5_re) + 
                  I(as.factor(age))*I(Q5_re) +
-                 Q3 + Q19 + Honam + PK + 
+                 as.numeric(Q3) + Q19 + Honam + PK + 
                  TK + gender + edu + income, data = subset,
                method = "logistic", Hess = TRUE)
-model6.null <- polr(as.ordered(Q4) ~ 1, data = subset,
-               method = "logistic", Hess = TRUE)
+model6.null <- polr(as.ordered(Q4_re) ~ 1, data = subset,
+                    method = "logistic", Hess = TRUE)
 lr6 <- round(model6.null$deviance - model6$deviance, 3)
 
 model3.cut1 <- summary(model3)$coefficients[9, 1] %>% 
@@ -1193,17 +1107,17 @@ stargazer(model3, model4, model5, model6,
           column.labels = c("Base", "Generation", "Prospects",
                             "Full"),
           covariate.labels = c(
-          "30s", "40s", "50s", "60+", 
-          "Prospects",
-          "Interests",
-           "NK policy Eval.",
-          "Honam", "PK", "TK",
-          "Gender","Education",
-           "Income",
-          "30s$\\times$Prospects",
-          "40s$\\times$Prospects",
-          "50s$\\times$Prospects",
-          "60s$\\times$Prospects"),
+            "30s", "40s", "50s", "60+", 
+            "Prospects",
+            "Interests",
+            "NK policy Eval.",
+            "Honam", "PK", "TK",
+            "Gender","Education",
+            "Income",
+            "30s$\\times$Prospects",
+            "40s$\\times$Prospects",
+            "50s$\\times$Prospects",
+            "60s$\\times$Prospects"),
           header = F,
           keep.stat = c("n"),
           add.lines = list(c("cut1", 
@@ -1234,21 +1148,21 @@ stargazer(model3, model4, model5, model6,
                              lr3, lr4, lr5, lr6)),
           star.cutoffs = c(0.05, 0.01, 0.001),
           notes = c("Standard errors in parentheses."),
- #         table.placement = "H", 
+          #         table.placement = "H", 
           table.layout = "=lc-tas-n")
+
 ```
 
 Model 5 analyzes the relationship between the prospect for and the attitudes toward the unification. The longer the expected period of unification is, the more negative the prospect is, because we can consider it a transitional period. In other words, the expected period for unification is not only the preparation period for unification, but also the time of hesitation when we take into account the burdens, costs, and social issues that will arise from unification. Moreover, the response that the time when unification is possible is near or impossible for the long term means that motivation and expectations for unification are low [@Jeong2013: 82]. In Model 5, respondents display negative attitudes toward unification as they are more cynical about the prospect for unification, which was statistically significant.
 
 ```{r fig10, fig.width=3.5, fig.height=6, fig.align='center', fig.pos = "htbp", cache=TRUE, message = F, echo=F, fig.cap="\\label{fig10} Predicted Probabilities of the 40s and 50s"}
-subset$Q4_fa <- as.factor(subset$Q4_fa)
-model6a <- polr(Q4_fa ~ age + Q5_re + age*Q5_re + 
-                 Q3 + Q19 + Honam + PK + 
-                 TK + gender + edu + income, data = subset,
-               method = "logistic", Hess = TRUE)
-library(ggeffects)
-df <- ggpredict(model6a, terms = c("age", "Q5_re"))
-
+subset$Q4_int <- as.factor(as.numeric(subset$Q4_re))
+subset$age_fa <- as.factor(subset$age)
+model6a <- polr(Q4_int ~ age_fa + Q5_re + age_fa*Q5_re + 
+                  Q3 + Q19 + Honam + PK + 
+                  TK + gender + edu + income, data = subset,
+                method = "logistic", Hess = TRUE)
+df <- ggeffects::ggpredict(model6a, terms = c("age_fa", "Q5_re"))
 df <- df %>% mutate(
   response.level = as.numeric(response.level)
 )
@@ -1262,13 +1176,13 @@ df <- df %>% mutate(
     x == 5L ~ "60+"),
   DV = case_when(
     response.level == 1L ~ "Not\npreferred",
-    response.level == 2L ~ "Status quo",
-    response.level == 3L ~ "Preferred without\nBurdens",
+    response.level == 2L ~ "Preferred without\nBurdens",
+    response.level == 3L ~ "Status quo",
     response.level == 4L ~ "Preferred",
   ) %>% parse_factor(., levels = c("Not\npreferred","Status quo","Preferred without\nBurdens","Preferred"),
                      ordered = T, include_na = T)
-    
-  )
+  
+)
 
 
 p50 <- df %>% dplyr::filter(Generation %in% c("50s")) %>%

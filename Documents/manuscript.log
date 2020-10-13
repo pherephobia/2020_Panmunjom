@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018/W32TeX) (preloaded format=pdflatex 2018.8.22)  11 OCT 2020 02:09
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018/W32TeX) (preloaded format=pdflatex 2018.8.22)  13 OCT 2020 11:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1926,11 +1926,6 @@ Overfull \hbox (6.84613pt too wide) in paragraph at lines 996--997
  []
 
 
-Overfull \hbox (5.92174pt too wide) in paragraph at lines 1060--1130
- [][] 
- []
-
-
 LaTeX Warning: Float too large for page by 1.5666pt on input line 1130.
 
 [9 <./manuscript_files/figure-latex/fig9-1.pdf>]
@@ -2052,7 +2047,7 @@ Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1284.
 Here is how much of TeX's memory you used:
  36792 strings out of 492642
  663545 string characters out of 6133162
- 794066 words of memory out of 5000000
+ 794067 words of memory out of 5000000
  39582 multiletter control sequences out of 15000+600000
  640502 words of font info for 378 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -2068,7 +2063,7 @@ public/mathdesign/mdbch/md-chri7m.pfb><c:/texlive/2018/texmf-dist/fonts/type1/u
 rw/helvetic/uhvb8a.pfb><c:/texlive/2018/texmf-dist/fonts/type1/urw/helvetic/uhv
 bo8a.pfb><c:/texlive/2018/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb><c:/te
 xlive/2018/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on manuscript.pdf (13 pages, 251549 bytes).
+Output written on manuscript.pdf (13 pages, 251490 bytes).
 PDF statistics:
  475 PDF objects out of 1000 (max. 8388607)
  423 compressed objects within 5 object streams
