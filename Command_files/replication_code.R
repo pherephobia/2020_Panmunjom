@@ -18,9 +18,6 @@ library(knitr)
 library(kableExtra)
 library(tidyverse)
 
-
-
-rm(list=ls())
 load("Analysis_data/replication.RData")
 ## See the data for replication
 glimpse(subset)   # Survey
@@ -292,7 +289,7 @@ subset %>% dplyr::filter(Q6_fa == "The Burden of\nUnification Costs") %>%
 
 ## Figure 7
 
-Bivariate <- subset %>% dplyr::select(Q1, Q2, Q4, Q5, age) %>%
+Bivariate <- subset %>% dplyr::select(Q1, Q2, Q4_re, Q5, age) %>%
   mutate(
     age = case_when(
       age == 1L ~ "20s",
@@ -322,8 +319,8 @@ Bivariate_sum <- Bivariate %>% group_by(age) %>%
     Q1.sd = sd(as.numeric(Q1), na.rm = T),
     Q2.sum = mean(as.numeric(Q2), na.rm = T),
     Q2.sd = sd(as.numeric(Q2), na.rm = T),
-    Q4.sum = mean(as.numeric(Q4), na.rm = T),
-    Q4.sd = sd(as.numeric(Q4), na.rm = T)
+    Q4.sum = mean(as.numeric(Q4_re), na.rm = T),
+    Q4.sd = sd(as.numeric(Q4_re), na.rm = T)
   )
 
 plot5a <- Bivariate_sum %>% 
@@ -362,11 +359,11 @@ plot5b <- Bivariate_sum %>%
 plot5a + plot5b + patchwork::plot_layout(ncol = 1)
 
 ## Figure 8
-Bivaraiate_sum2a <- as.data.frame(table(Bivariate$Q4, Bivariate$age))
+Bivaraiate_sum2a <- as.data.frame(table(Bivariate$Q4_re, Bivariate$age))
 Bivaraiate_sum2b <- as.data.frame(table(Bivariate$Q5, Bivariate$age))
 
 Bivaraiate_sum2a <- Bivaraiate_sum2a %>% rename(
-  Q4 = Var1,
+  Q4_re = Var1,
   Generation = Var2,
   Q4.freq = Freq
 )
@@ -380,33 +377,33 @@ Bivaraiate_sum2b <- Bivaraiate_sum2b %>% rename(
 
 Bivaraiate_sum2a <- Bivaraiate_sum2a %>% mutate(
   Q4.Prop = case_when(
-    Q4 == "Not\npreferred"              & Generation == "20s" ~ 26/162,
-    Q4 == "status quo"                 & Generation == "20s" ~ 71/162,
-    Q4 == "preferred\nwithout\nBurdens" & Generation == "20s" ~ 45/162,
-    Q4 == "preferred"                   & Generation == "20s" ~ 20/162,
-    Q4 == "Not\npreferred"              & Generation == "30s" ~ 25/181,
-    Q4 == "status quo"                 & Generation == "30s" ~ 97/181,
-    Q4 == "preferred\nwithout\nBurdens" & Generation == "30s" ~ 42/181,
-    Q4 == "preferred"                   & Generation == "30s" ~ 17/181,
-    Q4 == "Not\npreferred"              & Generation == "40s" ~ 48/208,
-    Q4 == "status quo"                 & Generation == "40s" ~ 83/208,
-    Q4 == "preferred\nwithout\nBurdens" & Generation == "40s" ~ 63/208,
-    Q4 == "preferred"                   & Generation == "40s" ~ 14/208,
-    Q4 == "Not\npreferred"              & Generation == "50s" ~ 52/202,
-    Q4 == "status quo"                 & Generation == "50s" ~ 92/202,
-    Q4 == "preferred\nwithout\nBurdens" & Generation == "50s" ~ 42/202,
-    Q4 == "preferred"                   & Generation == "50s" ~ 16/202,
-    Q4 == "Not\npreferred"              & Generation == "over 60s" ~ 53/247,
-    Q4 == "status quo"                 & Generation == "over 60s" ~ 112/247,
-    Q4 == "preferred\nwithout\nBurdens" & Generation == "over 60s" ~ 60/247,
-    Q4 == "preferred"                   & Generation == "over 60s" ~ 22/247
+    Q4_re == "Not\npreferred"              & Generation == "20s" ~ 26/162,
+    Q4_re == "Status quo"                 & Generation == "20s" ~ 71/162,
+    Q4_re == "Preferred\nwithout\nBurdens" & Generation == "20s" ~ 45/162,
+    Q4_re == "Preferred"                   & Generation == "20s" ~ 20/162,
+    Q4_re == "Not\npreferred"              & Generation == "30s" ~ 25/181,
+    Q4_re == "Status quo"                 & Generation == "30s" ~ 97/181,
+    Q4_re == "Preferred\nwithout\nBurdens" & Generation == "30s" ~ 42/181,
+    Q4_re == "Preferred"                   & Generation == "30s" ~ 17/181,
+    Q4_re == "Not\npreferred"              & Generation == "40s" ~ 48/208,
+    Q4_re == "Status quo"                 & Generation == "40s" ~ 83/208,
+    Q4_re == "Preferred\nwithout\nBurdens" & Generation == "40s" ~ 63/208,
+    Q4_re == "Preferred"                   & Generation == "40s" ~ 14/208,
+    Q4_re == "Not\npreferred"              & Generation == "50s" ~ 52/202,
+    Q4_re == "Status quo"                 & Generation == "50s" ~ 92/202,
+    Q4_re == "Preferred\nwithout\nBurdens" & Generation == "50s" ~ 42/202,
+    Q4_re == "Preferred"                   & Generation == "50s" ~ 16/202,
+    Q4_re == "Not\npreferred"              & Generation == "over 60s" ~ 53/247,
+    Q4_re == "Status quo"                 & Generation == "over 60s" ~ 112/247,
+    Q4_re == "Preferred\nwithout\nBurdens" & Generation == "over 60s" ~ 60/247,
+    Q4_re == "Preferred"                   & Generation == "over 60s" ~ 22/247
   ),
   Q4.Prop.round = round(Q4.Prop, 2),
   `Attitudes toward unification` = case_when(
-    Q4 == "Not\npreferred"  ~ "Not preferred",
-    Q4 == "status quo"     ~ "status quo",
-    Q4 == "preferred\nwithout\nBurdens" ~ "preferred without\nBurdens",
-    Q4 == "preferred" ~ "preferred"
+    Q4_re == "Not\npreferred"  ~ "Not preferred",
+    Q4_re == "Status quo"     ~ "Status quo",
+    Q4_re == "Preferred\nwithout\nBurdens" ~ "Preferred without\nBurdens",
+    Q4_re == "Preferred" ~ "Preferred"
   )
 )
 
@@ -583,6 +580,53 @@ stargazer(model1, model2,
           table.placement = "H",
           table.layout = "=lc-tas-n")
 
+
+## Table1 -> Coefplot
+model1.tidy <- broom::tidy(model1)
+model1.tidy_conf <-broom::confint_tidy(model1)
+model1.tidy <- bind_cols(model1.tidy[1:11,], model1.tidy_conf)  
+
+
+coefplot1 <- model1.tidy %>% mutate(
+  term = case_when(
+    term == "as.factor(age)2" ~ "Gen:\n30s",
+    term == "as.factor(age)3" ~ "Gen:\n40s",
+    term == "as.factor(age)4" ~ "Gen:\n50s",
+    term == "as.factor(age)5" ~ "Gen:\n60+",
+    term == "Q19" ~ "Govt.NK\nPolicy\neval.",
+    term == "Honam" ~ "Region:\nHonam",
+    term == "PK" ~ "Region:\nPK",
+    term == "TK" ~ "Region:\nTK",
+    term == "gender" ~ "Gender",
+    term == "edu" ~ "Education",
+    term == "income" ~ "Income") %>%
+    parse_factor(., levels = c(
+      "Gen:\n30s","Gen:\n40s","Gen:\n50s","Gen:\n60+",
+      "Govt.NK\nPolicy\neval.","Region:\nHonam",
+      "Region:\nPK", "Region:\nTK", "Gender", "Education",
+      "Income")),
+  sig = ifelse(conf.high >= 0 & conf.low <=0, "Insig", "sig") %>%
+    parse_factor(., levels = c("Insig", "sig"), ordered = T,
+                 include_na = F)
+)
+
+coefplot1 %>%
+  ggplot(aes(x = term, y = estimate, 
+             color = as.factor(sig))) + 
+  geom_point(size = 3, show.legend = F, shape = 10) +
+  geom_pointrange(size = 1, show.legend = F,
+                  aes(ymin = conf.low, 
+                      ymax = conf.high)) + 
+  labs(y = "Estimates", x = "") + 
+  scale_color_manual(values = wesanderson::wes_palette("Royal1")) + 
+  geom_hline(yintercept = 0, color = "red") + 
+  theme_bw() + theme(
+    plot.background = element_rect(fill = "transparent", color = NA)
+  )
+
+ggsave("figure/figure13.png", bg = "transparent",
+       width = 8, height = 3.5, dpi = 600)
+
 ## Figure 9
 ## Simulate coefficiets and cutpoints (King, Tomz, and Wittenberg 2000)
 set.seed(1234)
@@ -728,34 +772,35 @@ pr.table %>% #dplyr::filter(generation %in% c("40s", "50s")) %>%
 
 ## Table 2: Ordered logistic regressions: 
 ## Attitudes toward N.K. after the Panmunjom Declaration
-
-model3 <- polr(as.ordered(Q4) ~ Q3 + Q19 + Honam + PK + 
+table(subset$Q4_re)
+table(subset$Q5_re)
+model3 <- polr(as.ordered(Q4_re) ~ Q3 + Q19 + Honam + PK + 
                  TK + gender + edu + income, data = subset,
                method = "logistic", Hess = TRUE)
-model3.null <- polr(as.ordered(Q4) ~ 1, data = subset,
+model3.null <- polr(as.ordered(Q4_re) ~ 1, data = subset,
                     method = "logistic", Hess = TRUE)
 lr3 <- round(model3.null$deviance - model3$deviance, 3)
 
-model4 <- polr(as.ordered(Q4) ~ I(as.factor(age)) + Q3 + Q19 + Honam + PK + 
+model4 <- polr(as.ordered(Q4_re) ~ I(as.factor(age)) + Q3 + Q19 + Honam + PK + 
                  TK + gender + edu + income, data = subset,
                method = "logistic", Hess = TRUE)
-model4.null <- polr(as.ordered(Q4) ~ 1, data = subset,
+model4.null <- polr(as.ordered(Q4_re) ~ 1, data = subset,
                     method = "logistic", Hess = TRUE)
 lr4 <- round(model4.null$deviance - model4$deviance, 3)
 
-model5 <- polr(as.ordered(Q4) ~ I(Q5_re) + Q3 + Q19 + Honam + PK + 
+model5 <- polr(as.ordered(Q4_re) ~ I(Q5_re) + Q3 + Q19 + Honam + PK + 
                  TK + gender + edu + income, data = subset,
                method = "logistic", Hess = TRUE)
-model5.null <- polr(as.ordered(Q4) ~ 1, data = subset,
+model5.null <- polr(as.ordered(Q4_re) ~ 1, data = subset,
                     method = "logistic", Hess = TRUE)
 lr5 <- round(model5.null$deviance - model5$deviance, 3)
 
-model6 <- polr(as.ordered(Q4) ~ I(as.factor(age)) + I(Q5_re) + 
+model6 <- polr(as.ordered(Q4_re) ~ I(as.factor(age)) + I(Q5_re) + 
                  I(as.factor(age))*I(Q5_re) +
                  Q3 + Q19 + Honam + PK + 
                  TK + gender + edu + income, data = subset,
                method = "logistic", Hess = TRUE)
-model6.null <- polr(as.ordered(Q4) ~ 1, data = subset,
+model6.null <- polr(as.ordered(Q4_re) ~ 1, data = subset,
                     method = "logistic", Hess = TRUE)
 lr6 <- round(model6.null$deviance - model6$deviance, 3)
 
@@ -866,16 +911,75 @@ stargazer(model3, model4, model5, model6,
           #         table.placement = "H", 
           table.layout = "=lc-tas-n")
 
+## Table2 -> Coefplot2
+
+model2.tidy <- broom::tidy(model6)
+model2.tidy_conf <-broom::confint_tidy(model6)
+model2.tidy <- bind_cols(model2.tidy[1:19,], model2.tidy_conf)  
+
+coefplot2 <- model2.tidy %>% mutate(
+  term = case_when(
+    term == "I(as.factor(age))2" ~ "Gen:\n30s",
+    term == "I(as.factor(age))3" ~ "Gen:\n40s",
+    term == "I(as.factor(age))4" ~ "Gen:\n50s",
+    term == "I(as.factor(age))5" ~ "Gen:\n60+",
+    term == "I(as.factor(age))2:I(Q5_re)" ~ "30s\nX\nProspect",
+    term == "I(as.factor(age))3:I(Q5_re)" ~ "40s\nX\nProspect",
+    term == "I(as.factor(age))4:I(Q5_re)" ~ "50s\nX\nProspect",
+    term == "I(as.factor(age))5:I(Q5_re)" ~ "60+\nX\nProspect",
+    term == "I(Q5_re)" ~ "Prospect\nof\nunification",
+    term == "Q19" ~ "Govt.NK\nPolicy\neval.",
+    term == "Honam" ~ "Region:\nHonam",
+    term == "PK" ~ "Region:\nPK",
+    term == "TK" ~ "Region:\nTK",
+    term == "gender" ~ "Gender",
+    term == "edu" ~ "Education",
+    term == "income" ~ "Income",
+    T ~ NA_character_) %>%
+    parse_factor(., levels = c(
+      "Gen:\n30s","Gen:\n40s","Gen:\n50s","Gen:\n60+",
+      "30s\nX\nProspect", "40s\nX\nProspect",
+      "50s\nX\nProspect", "60+\nX\nProspect",
+      "Prospect\nof\nunification",
+      "Govt.NK\nPolicy\neval.","Region:\nHonam",
+      "Region:\nPK", "Region:\nTK", "Gender", "Education",
+      "Income")),
+  sig = ifelse(conf.high >= 0 & conf.low <=0, "Insig", "sig") %>%
+    parse_factor(., levels = c("Insig", "sig"), ordered = T,
+                 include_na = F)
+)
+coefplot2 %>% dplyr::filter(!term %in% c(NA_character_)) %>%
+  ggplot(aes(x = term, y = estimate, 
+             color = as.factor(sig))) + 
+  geom_point(size = 3, show.legend = F, shape = 10) +
+  geom_pointrange(size = 1, show.legend = F,
+                  aes(ymin = conf.low, 
+                      ymax = conf.high)) + 
+  labs(y = "Estimates", x = "") + 
+  scale_color_manual(values = wesanderson::wes_palette("Royal1")) + 
+  geom_hline(yintercept = 0, color = "red") + 
+  theme_bw() + theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    axis.text.x = element_text(size = 7),
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.background = element_rect(fill = "transparent", color = NA),
+    legend.box.background = element_rect(fill = "transparent", color = NA)
+    
+  )
+
+ggsave("figure/figure15.png", bg = "transparent",
+       width = 8, height = 3.5, dpi = 600)
+
 ## Figure 10
 
-subset$Q4_int <- as.factor(as.numeric(subset$Q4))
-model6a <- polr(Q4_int ~ age + Q5_re + age*Q5_re + 
+subset$Q4_int <- as.factor(as.numeric(subset$Q4_re))
+subset$age_fa <- as.factor(subset$age)
+model6a <- polr(Q4_int ~ age_fa + Q5_re + age_fa*Q5_re + 
                   Q3 + Q19 + Honam + PK + 
                   TK + gender + edu + income, data = subset,
                 method = "logistic", Hess = TRUE)
-
-df <- ggpredict(model6a, terms = c("age", "Q5_re"))
-
+df <- ggeffects::ggpredict(model6a, terms = c("age_fa", "Q5_re"))
 df <- df %>% mutate(
   response.level = as.numeric(response.level)
 )
@@ -927,10 +1031,14 @@ p50 <- df %>% dplyr::filter(Generation %in% c("50s")) %>%
     axis.title.y = element_text(size = 7.5),
     axis.text.y = element_text(size = 6),
     legend.text = element_text(size = 6.5),
-    strip.text = element_text(size = 6)
+    strip.text = element_text(size = 6),
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.background = element_rect(fill = "transparent", color = NA),
+    legend.box.background = element_rect(fill = "transparent", color = NA)
   )
 
-
+ggsave("figure/figure16.png", bg = "transparent",
+       width = 3, height = 3.5, dpi = 600)
 
 p60 <- df %>% dplyr::filter(Generation %in% c("60+")) %>%
   ggplot(aes(x = group, y = predicted, 
@@ -953,6 +1061,9 @@ p60 <- df %>% dplyr::filter(Generation %in% c("60+")) %>%
   scale_fill_manual(values = futurevisions::futurevisions("mars")[3]) + 
   theme_bw() + 
   theme(
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.background = element_rect(fill = "transparent", color = NA),
+    legend.box.background = element_rect(fill = "transparent", color = NA),
     legend.title = element_blank(),
     legend.position = "bottom",
     plot.subtitle = element_text(size = 7.5),
@@ -963,7 +1074,12 @@ p60 <- df %>% dplyr::filter(Generation %in% c("60+")) %>%
     legend.text = element_text(size = 6.5),
     strip.text = element_text(size = 6)
   )
+ggsave("figure/figure17.png", bg = "transparent",
+       width = 3, height = 3.5, dpi = 600)
+
 p50 + p60 + patchwork::plot_layout(ncol = 1)
+
+p20 + p30 + p40 + p50 + p60 + patchwork::plot_layout(ncol = 2)
 
 ## Figure 11
 
@@ -981,6 +1097,9 @@ p20 <- df %>% dplyr::filter(Generation %in% c("20s")) %>%
   scale_fill_manual(values = futurevisions::futurevisions("mars")) + 
   theme_bw() + 
   theme(
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.background = element_rect(fill = "transparent", color = NA),
+    legend.box.background = element_rect(fill = "transparent", color = NA),
     legend.title = element_blank(),
     legend.position = "bottom",
     plot.subtitle = element_text(size = 7.5),
@@ -992,6 +1111,8 @@ p20 <- df %>% dplyr::filter(Generation %in% c("20s")) %>%
     strip.text = element_text(size = 6)
   )
 
+ggsave("figure/figure18.png", bg = "transparent",
+       width = 3, height = 3.5, dpi = 600)
 
 p30 <- df %>% dplyr::filter(Generation %in% c("30s")) %>%
   ggplot(aes(x = group, y = predicted, 
@@ -1014,6 +1135,9 @@ p30 <- df %>% dplyr::filter(Generation %in% c("30s")) %>%
   scale_fill_manual(values = futurevisions::futurevisions("mars")[4]) + 
   theme_bw() + 
   theme(
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.background = element_rect(fill = "transparent", color = NA),
+    legend.box.background = element_rect(fill = "transparent", color = NA),
     legend.title = element_blank(),
     legend.position = "bottom",
     plot.subtitle = element_text(size = 7.5),
@@ -1024,6 +1148,9 @@ p30 <- df %>% dplyr::filter(Generation %in% c("30s")) %>%
     legend.text = element_text(size = 6.5),
     strip.text = element_text(size = 6)
   )
+
+ggsave("figure/figure19.png", bg = "transparent",
+       width = 3, height = 3.5, dpi = 600)
 
 p40 <- df %>% dplyr::filter(Generation %in% c("40s")) %>%
   ggplot(aes(x = group, y = predicted, 
@@ -1046,6 +1173,9 @@ p40 <- df %>% dplyr::filter(Generation %in% c("40s")) %>%
   scale_fill_manual(values = futurevisions::futurevisions("jupiter")[4]) + 
   theme_bw() + 
   theme(
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.background = element_rect(fill = "transparent", color = NA),
+    legend.box.background = element_rect(fill = "transparent", color = NA),
     legend.title = element_blank(),
     legend.position = "bottom",
     plot.subtitle = element_text(size = 7.5),
@@ -1056,7 +1186,8 @@ p40 <- df %>% dplyr::filter(Generation %in% c("40s")) %>%
     legend.text = element_text(size = 6.5),
     strip.text = element_text(size = 6)
   )
-
+ggsave("figure/figure20.png", bg = "transparent",
+       width = 3, height = 3.5, dpi = 600)
 
 p20 + p30 + p40 + patchwork::plot_layout(ncol = 1)
 
