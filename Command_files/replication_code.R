@@ -578,6 +578,7 @@ stargazer(model1, model2,
                     "PK: Pusan/Ulsan/Kyeongnam",
                     "TK:Taegu/Kyeongbuk"),
           table.placement = "H",
+          type = "text",
           table.layout = "=lc-tas-n")
 
 
@@ -589,22 +590,21 @@ model1.tidy <- bind_cols(model1.tidy[1:11,], model1.tidy_conf)
 
 coefplot1 <- model1.tidy %>% mutate(
   term = case_when(
-    term == "as.factor(age)2" ~ "Gen:\n30s",
-    term == "as.factor(age)3" ~ "Gen:\n40s",
-    term == "as.factor(age)4" ~ "Gen:\n50s",
-    term == "as.factor(age)5" ~ "Gen:\n60+",
-    term == "Q19" ~ "Govt.NK\nPolicy\neval.",
-    term == "Honam" ~ "Region:\nHonam",
-    term == "PK" ~ "Region:\nPK",
-    term == "TK" ~ "Region:\nTK",
-    term == "gender" ~ "Gender",
-    term == "edu" ~ "Education",
-    term == "income" ~ "Income") %>%
-    parse_factor(., levels = c(
-      "Gen:\n30s","Gen:\n40s","Gen:\n50s","Gen:\n60+",
-      "Govt.NK\nPolicy\neval.","Region:\nHonam",
-      "Region:\nPK", "Region:\nTK", "Gender", "Education",
-      "Income")),
+    term == "as.factor(age)2" ~ "30대",
+    term == "as.factor(age)3" ~ "40대",
+    term == "as.factor(age)4" ~ "50대",
+    term == "as.factor(age)5" ~ "60대\n이상",
+    term == "Q19" ~ "정부의\n대북정책\n평가",
+    term == "Honam" ~ "호남",
+    term == "PK" ~ "부울경",
+    term == "TK" ~ "대구\n경북",
+    term == "gender" ~ "성별",
+    term == "edu" ~ "교육\n수준",
+    term == "income" ~ "소득\n수준") %>%
+    parse_factor(., levels = c("30대","40대","50대","60대\n이상",
+                               "정부의\n대북정책\n평가","호남",
+                               "부울경","대구\n경북","성별",
+                               "교육\n수준","소득\n수준")),
   sig = ifelse(conf.high >= 0 & conf.low <=0, "Insig", "sig") %>%
     parse_factor(., levels = c("Insig", "sig"), ordered = T,
                  include_na = F)
@@ -617,14 +617,14 @@ coefplot1 %>%
   geom_pointrange(size = 1, show.legend = F,
                   aes(ymin = conf.low, 
                       ymax = conf.high)) + 
-  labs(y = "Estimates", x = "") + 
+  labs(y = "계수값값", x = "") + 
   scale_color_manual(values = wesanderson::wes_palette("Royal1")) + 
   geom_hline(yintercept = 0, color = "red") + 
   theme_bw() + theme(
     plot.background = element_rect(fill = "transparent", color = NA)
   )
 
-ggsave("figure/figure13.png", bg = "transparent",
+ggsave("figure/figure_ko_3.png", bg = "transparent",
        width = 8, height = 3.5, dpi = 600)
 
 ## Figure 9
@@ -774,6 +774,7 @@ pr.table %>% #dplyr::filter(generation %in% c("40s", "50s")) %>%
 ## Attitudes toward N.K. after the Panmunjom Declaration
 table(subset$Q4_re)
 table(subset$Q5_re)
+subset$Q3 <- as.numeric(subset$Q3)
 model3 <- polr(as.ordered(Q4_re) ~ Q3 + Q19 + Honam + PK + 
                  TK + gender + edu + income, data = subset,
                method = "logistic", Hess = TRUE)
@@ -1203,3 +1204,4 @@ description <- subset %>%
                 Q5_fa, Q6, Q9, Q19, Honam,
                 PK, TK, gender, edu, income, age)
 #moonBook::myhtml(moonBook::mytable(age~., data = description))
+
